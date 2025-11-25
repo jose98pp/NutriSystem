@@ -1,0 +1,26 @@
+{
+  "_react-vendor-2Os_5mMV.js": {
+    "file": "assets/react-vendor-2Os_5mMV.js",
+    "name": "react-vendor"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-f3lVvDHj.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.jsx": {
+    "file": "assets/app-CpHoMD3z.js",
+    "name": "app",
+    "src": "resources/js/app.jsx",
+    "isEntry": true,
+    "imports": [
+      "_react-vendor-2Os_5mMV.js"
+    ],
+    "css": [
+      "assets/app-f3lVvDHj.css"
+    ]
+  }
+}
