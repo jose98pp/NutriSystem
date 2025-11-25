@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout', 'register'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'oauth/*', 'login', 'logout', 'register'],
 
     'allowed_methods' => ['*'],
 
@@ -37,6 +37,8 @@ return [
         'http://172.30.1.49:3000',
         // Producción - Render
         env('APP_URL'),
+        env('FRONTEND_URL'),
+        'https://nutrisystem.onrender.com',
     ]),
 
     'allowed_origins_patterns' => [],

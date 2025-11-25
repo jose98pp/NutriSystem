@@ -36,6 +36,7 @@ use App\Http\Controllers\Api\NutritionalAnalysisController;
 */
 
 // Rutas públicas
+Route::get('/diagnostic', [AuthController::class, 'diagnostic']);
 Route::post('/register', [\App\Http\Controllers\Api\RegisterController::class, 'register']);
 Route::post('/verify-email', [\App\Http\Controllers\Api\RegisterController::class, 'verifyEmail']);
 Route::post('/resend-verification', [\App\Http\Controllers\Api\RegisterController::class, 'resendVerification']);

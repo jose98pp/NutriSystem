@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -24,21 +25,45 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|string|email|max:150|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'sometimes|in:admin,nutricionista,paciente',
-            'fecha_nacimiento' => 'required_if:role,paciente|date',
-            'genero' => 'required_if:role,paciente|in:M,F,Otro',
-            'telefono' => 'nullable|string|max:20',
-            'id_nutricionista' => 'sometimes|exists:nutricionistas,id_nutricionista',
-            'servicio_id' => 'sometimes|exists:servicios,id_servicio',
-            'medicion.peso_kg' => 'sometimes|numeric|min:20|max:300',
-            'medicion.altura_m' => 'sometimes|numeric|min:0.5|max:2.5',
-            'medicion.porc_grasa' => 'nullable|numeric|min:0|max:100',
-            'medicion.masa_magra_kg' => 'nullable|numeric|min:0',
+        $timestamp = now()->toIso8601String();
+        $email = $request->email;
+
+        // Log inicio de petición de registro (sin contraseña)
+        Log::info('Registration attempt started', [
+            'email' => $email,
+            'name' => $request->name,
+            'role' => $request->role ?? 'paciente',
+            'timestamp' => $timestamp,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
+
+        try {
+            $request->validate([
+                'name' => 'required|string|max:100',
+                'email' => 'required|string|email|max:150|unique:users',
+                'password' => 'required|string|min:8|confirmed',
+                'role' => 'sometimes|in:admin,nutricionista,paciente',
+                'fecha_nacimiento' => 'required_if:role,paciente|date',
+                'genero' => 'required_if:role,paciente|in:M,F,Otro',
+                'telefono' => 'nullable|string|max:20',
+                'id_nutricionista' => 'sometimes|exists:nutricionistas,id_nutricionista',
+                'servicio_id' => 'sometimes|exists:servicios,id_servicio',
+                'medicion.peso_kg' => 'sometimes|numeric|min:20|max:300',
+                'medicion.altura_m' => 'sometimes|numeric|min:0.5|max:2.5',
+                'medicion.porc_grasa' => 'nullable|numeric|min:0|max:100',
+                'medicion.masa_magra_kg' => 'nullable|numeric|min:0',
+            ]);
+        } catch (ValidationException $e) {
+            // Log error de validación
+            Log::warning('Registration failed - Validation error', [
+                'email' => $email,
+                'timestamp' => $timestamp,
+                'errors' => $e->errors(),
+                'ip' => $request->ip(),
+            ]);
+            throw $e;
+        }
 
         DB::beginTransaction();
 
@@ -52,6 +77,12 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => $role,
                 'telefono' => $request->telefono,
+            ]);
+
+            Log::info('User created successfully', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'role' => $user->role,
             ]);
 
             // Si es paciente, crear registro en tabla pacientes
@@ -124,6 +155,15 @@ class AuthController extends Controller
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
+            // Log registro exitoso
+            Log::info('Registration successful', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'role' => $user->role,
+                'timestamp' => $timestamp,
+                'ip' => $request->ip(),
+            ]);
+
             return response()->json([
                 'message' => 'Usuario registrado exitosamente',
                 'user' => $user,
@@ -132,6 +172,16 @@ class AuthController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+
+            // Log error de registro (sin datos sensibles)
+            Log::error('Registration failed - Database error', [
+                'email' => $email,
+                'role' => $request->role ?? 'paciente',
+                'timestamp' => $timestamp,
+                'error' => $e->getMessage(),
+                'ip' => $request->ip(),
+            ]);
+
             return response()->json([
                 'message' => 'Error al registrar usuario: ' . $e->getMessage()
             ], 500);
@@ -218,39 +268,91 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+        $email = $request->email;
+        $timestamp = now()->toIso8601String();
+
+        // Log inicio de petición de login
+        Log::info('Login attempt started', [
+            'email' => $email,
+            'timestamp' => $timestamp,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['Las credenciales proporcionadas son incorrectas.'],
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'password' => 'required',
             ]);
-        }
 
-        // Revocar tokens anteriores
-        $user->tokens()->delete();
+            $user = User::where('email', $request->email)->first();
 
-        // Si es paciente, cargar información adicional
-        if ($user->role === 'paciente') {
-            $paciente = Paciente::where('user_id', $user->id)->first();
-            if ($paciente) {
-                $user->id_paciente = $paciente->id_paciente;
-                $user->paciente = $paciente;
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                // Log fallo de autenticación
+                Log::warning('Login failed - Invalid credentials', [
+                    'email' => $email,
+                    'timestamp' => $timestamp,
+                    'reason' => !$user ? 'user_not_found' : 'invalid_password',
+                    'ip' => $request->ip(),
+                ]);
+
+                throw ValidationException::withMessages([
+                    'email' => ['Las credenciales proporcionadas son incorrectas.'],
+                ]);
             }
+
+            // Revocar tokens anteriores
+            $user->tokens()->delete();
+
+            // Si es paciente, cargar información adicional
+            if ($user->role === 'paciente') {
+                $paciente = Paciente::where('user_id', $user->id)->first();
+                if ($paciente) {
+                    $user->id_paciente = $paciente->id_paciente;
+                    $user->paciente = $paciente;
+                }
+            }
+
+            // Generar token
+            Log::info('Generating authentication token', [
+                'user_id' => $user->id,
+                'email' => $email,
+                'role' => $user->role,
+            ]);
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            // Log login exitoso
+            Log::info('Login successful', [
+                'user_id' => $user->id,
+                'email' => $email,
+                'role' => $user->role,
+                'timestamp' => $timestamp,
+                'ip' => $request->ip(),
+            ]);
+
+            return response()->json([
+                'message' => 'Inicio de sesión exitoso',
+                'user' => $user,
+                'access_token' => $token,
+                'token_type' => 'Bearer',
+            ]);
+        } catch (ValidationException $e) {
+            // Re-lanzar ValidationException sin loguear de nuevo
+            throw $e;
+        } catch (\Exception $e) {
+            // Log error inesperado
+            Log::error('Login error - Unexpected exception', [
+                'email' => $email,
+                'timestamp' => $timestamp,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => 'Error al procesar la solicitud de inicio de sesión',
+            ], 500);
         }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Inicio de sesión exitoso',
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-        ]);
     }
 
     /**
@@ -486,6 +588,78 @@ class AuthController extends Controller
                 'message' => 'Error al procesar token de Google',
                 'error' => $e->getMessage(),
             ], 400);
+        }
+    }
+
+    /**
+     * Endpoint de diagnóstico para verificar configuración de producción
+     * GET /api/diagnostic
+     */
+    public function diagnostic()
+    {
+        try {
+            // Verificar conectividad de base de datos
+            $dbConnected = false;
+            $dbError = null;
+            try {
+                DB::connection()->getPdo();
+                $dbConnected = true;
+            } catch (\Exception $e) {
+                $dbError = $e->getMessage();
+            }
+
+            // Verificar variables de entorno críticas
+            $envVars = [
+                'APP_ENV' => env('APP_ENV'),
+                'APP_DEBUG' => env('APP_DEBUG'),
+                'APP_URL' => env('APP_URL'),
+                'SESSION_DRIVER' => env('SESSION_DRIVER'),
+                'SESSION_DOMAIN' => env('SESSION_DOMAIN'),
+                'SESSION_SECURE_COOKIE' => env('SESSION_SECURE_COOKIE'),
+                'SANCTUM_STATEFUL_DOMAINS' => env('SANCTUM_STATEFUL_DOMAINS'),
+                'FRONTEND_URL' => env('FRONTEND_URL'),
+                'DB_CONNECTION' => env('DB_CONNECTION'),
+            ];
+
+            // Verificar configuración de CORS
+            $corsConfig = [
+                'paths' => config('cors.paths'),
+                'supports_credentials' => config('cors.supports_credentials'),
+                'allowed_origins_count' => count(config('cors.allowed_origins', [])),
+            ];
+
+            // Verificar configuración de Sanctum
+            $sanctumDomains = config('sanctum.stateful', []);
+
+            return response()->json([
+                'status' => 'ok',
+                'timestamp' => now()->toIso8601String(),
+                'database' => [
+                    'connected' => $dbConnected,
+                    'error' => $dbError,
+                    'driver' => config('database.default'),
+                ],
+                'environment' => $envVars,
+                'cors' => $corsConfig,
+                'sanctum' => [
+                    'stateful_domains' => $sanctumDomains,
+                    'guard' => config('sanctum.guard'),
+                    'expiration' => config('sanctum.expiration'),
+                ],
+                'session' => [
+                    'driver' => config('session.driver'),
+                    'lifetime' => config('session.lifetime'),
+                    'domain' => config('session.domain'),
+                    'secure' => config('session.secure'),
+                    'same_site' => config('session.same_site'),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al obtener información de diagnóstico',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 }
