@@ -108,16 +108,20 @@ class RegisterController extends Controller
             // Enviar email de verificación
             $this->emailVerificationService->sendVerificationEmail($user);
 
+            // Crear token para login automático
+            $token = $user->createToken('auth_token')->plainTextToken;
+
             return response()->json([
                 'success' => true,
                 'message' => 'Registro exitoso. Por favor verifica tu correo electrónico.',
-                'data' => [
-                    'user' => [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $user->role,
-                    ]
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'telefono' => $user->telefono,
+                    'fecha_nacimiento' => $user->fecha_nacimiento,
                 ]
             ], 201);
 
