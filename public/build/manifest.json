@@ -4,7 +4,7 @@
     "name": "react-vendor"
   },
   "resources/css/app.css": {
-    "file": "assets/app-f3lVvDHj.css",
+    "file": "assets/app-qZWbM5fp.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -12,7 +12,7 @@
     ]
   },
   "resources/js/app.jsx": {
-    "file": "assets/app-B41XKUCT.js",
+    "file": "assets/app-CALwyrCP.js",
     "name": "app",
     "src": "resources/js/app.jsx",
     "isEntry": true,
@@ -20,7 +20,7 @@
       "_react-vendor-2Os_5mMV.js"
     ],
     "css": [
-      "assets/app-f3lVvDHj.css"
+      "assets/app-qZWbM5fp.css"
     ]
   }
 }

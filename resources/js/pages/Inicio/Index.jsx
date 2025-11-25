@@ -3,182 +3,149 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Phone, ArrowRight, Sparkles, Apple, Users, ChefHat, Brain, Menu, X } from "lucide-react";
+import { BookOpen, Phone, ArrowRight, Sparkles, Apple, Users, ChefHat, Brain, Menu, X, Heart, Clock, LayoutGrid } from "lucide-react";
 import PublicLayout from "../../components/PublicLayout";
 
 const Index = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const categories = [
+  
+  // Datos para la sección "Qué Ofrecemos"
+  const features = [
     {
-      title: "Planes Nutricionales",
-      description: "Programas personalizados diseñados por expertos para alcanzar tus objetivos de salud",
-      icon: Apple,
-      link: "/planes",
-      badge: "Popular"
+      icon: Clock,
+      title: "Seguimiento en Tiempo Real",
+      description: "Monitorea el progreso de tus pacientes con métricas detalladas."
     },
     {
-      title: "Nutricionistas Certificados",
-      description: "Profesionales especializados listos para guiarte en tu camino hacia la salud óptima",
+      icon: LayoutGrid,
+      title: "Planes Personalizados",
+      description: "Crea planes alimenticios adaptados a cada necesidad."
+    },
+    {
       icon: Users,
-      link: "/nutricionistas",
-      badge: "Recomendado"
+      title: "Comunidad de Apoyo",
+      description: "Monitorea el progreso y apoyo de tus conocidos."
+    },
+  ];
+
+  // Datos para testimonios
+  const testimonials = [
+    {
+      name: "Ana Gómez",
+      text: '"NutriSystem cambió mi vida! Perdí 10kg y me siento con mucha energía."',
+      rating: 5,
+      avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTMzNzJ8MHwxfHNlYXJjaHwyMHx8d29tYW4lMjBzbWlsaW5nfHxlbnwwfHx8fDE3MTU0OTk4MjR8MA&ixlib=rb-4.0.3&q=80&w=1080"
     },
     {
-      title: "Psicólogos Certificados",
-      description: "Atención psicológica profesional individual o acompañada, presencial o por videollamada",
-      icon: Brain,
-      link: "/psicologos",
-      badge: "Nuevo"
+      name: "Carlos Pérez",
+      text: '"La mejor app de nutrición. Mi nutricionista es excelente y el seguimiento es clave."',
+      rating: 5,
+      avatar: "https://images.unsplash.com/photo-1564564321837-a57b7070ac4f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTMzNzJ8MHwxfHNlYXJjaHwxNHx8bWFuJTIwc21pbGluZ3xlbnwwfHx8fDE3MTU0OTk4MjV8MA&ixlib=rb-4.0.3&q=80&w=1080"
     },
-    {
-      title: "Recetas Saludables",
-      description: "Miles de recetas deliciosas y nutritivas para cada momento del día",
-      icon: ChefHat,
-      link: "/recetas",
-      badge: ""
-    }
   ];
 
   return (
     <PublicLayout>
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-        <div className="container mx-auto px-4 py-20 relative">
+      <section className="bg-gradient-to-r from-[#81D833] to-[#2E8B57] text-white py-20 relative overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 bg-secondary px-4 py-2 rounded-full">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-secondary-foreground">
-                  Tu bienestar empieza aquí
-                </span>
+              <div className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full">
+                <Sparkles className="h-4 w-4 text-white" />
+                <span className="text-sm font-medium">Tu bienestar empieza aquí</span>
               </div>
-              <h2 className="text-5xl md:text-6xl font-bold text-foreground leading-tight">
-                Transforma tu salud con
-                <span className="bg-gradient-primary bg-clip-text text-transparent"> nutrición personalizada</span>
+              <h2 className="text-5xl md:text-6xl font-bold leading-tight">
+                Transforma tu salud con NutriSystem
               </h2>
-              <p className="text-lg text-muted-foreground">
-                Accede a planes nutricionales diseñados por expertos, consultas con profesionales certificados 
+              <p className="text-lg text-white/90">
+                Accede a planes nutricionales diseñados por expertos, consultas con profesionales certificados
                 y una comunidad dedicada a tu bienestar integral.
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button variant="hero" size="lg">
-                  Comenzar ahora
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Button>
-                <Button variant="outline" size="lg">
+                <Link to="/register">
+                  <Button className="bg-white text-[#2E8B57] hover:bg-gray-100" size="lg">
+                    Comenzar ahora
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </Button>
+                </Link>
+                <Button variant="outline" className="border-white text-white hover:bg-white/10" size="lg">
                   Conocer más
                 </Button>
               </div>
-              <div className="flex items-center gap-8 pt-4">
-                <div>
-                  <p className="text-3xl font-bold text-primary">10K+</p>
-                  <p className="text-sm text-muted-foreground">Clientes satisfechos</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-primary">500+</p>
-                  <p className="text-sm text-muted-foreground">Planes personalizados</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-bold text-primary">50+</p>
-                  <p className="text-sm text-muted-foreground">Nutricionistas</p>
-                </div>
-              </div>
             </div>
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-primary opacity-20 blur-3xl rounded-full" />
-              <div className="relative rounded-2xl shadow-xl w-full bg-gradient-to-br from-primary/20 to-accent/20 p-12 flex items-center justify-center min-h-[400px]">
-                <Apple className="h-48 w-48 text-primary/40" />
-              </div>
+            <div className="relative flex justify-center">
+              <img
+                src="https://images.unsplash.com/photo-1549060273-712337e7f603?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w0NTMzNzJ8MHwxfHNlYXJjaHwzMHx8Zml0bmVzcyUyMHBlb3BsZXxlbnwwfHx8fDE3MTU0OTM1MTh8MA&ixlib=rb-4.0.3&q=80&w=1080"
+                alt="Personas haciendo ejercicio"
+                className="rounded-lg shadow-xl object-cover w-full max-w-md md:max-w-none h-auto"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Categories Section */}
+      {/* Sección de Características - "Qué Ofrecemos" */}
       <section className="container mx-auto px-4 py-20">
         <div className="text-center mb-12">
-          <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Explora nuestros servicios
-          </h3>
+          <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Qué Ofrecemos</h3>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Todo lo que necesitas para lograr tus objetivos de salud en un solo lugar
+            Todo lo que necesitas para lograr tus objetivos de salud en un solo lugar.
           </p>
         </div>
-
         <div className="grid md:grid-cols-3 gap-8">
-          {categories.map((category, index) => (
-            <Link key={index} to={`/inicio${category.link}`} className="group">
-              <Card className="h-full bg-gradient-card hover:shadow-xl transition-smooth border-2 border-border hover:border-primary">
-                <CardHeader>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="p-4 bg-secondary rounded-xl group-hover:scale-110 transition-smooth">
-                      <category.icon className="h-16 w-16 text-primary" />
-                    </div>
-                    {category.badge && (
-                      <Badge variant="secondary" className="bg-accent text-accent-foreground">
-                        {category.badge}
-                      </Badge>
-                    )}
-                  </div>
-                  <CardTitle className="text-2xl group-hover:text-primary transition-smooth">
-                    {category.title}
-                  </CardTitle>
-                  <CardDescription className="text-base">
-                    {category.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="ghost" className="w-full group-hover:bg-primary group-hover:text-primary-foreground">
-                    Explorar
-                    <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-smooth" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
+          {features.map((feature, index) => (
+            <Card key={index} className="h-full border-none shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <CardHeader className="flex flex-row items-center justify-start space-x-4 pb-2">
+                <div className="p-3 bg-green-100 rounded-full">
+                  <feature.icon className="h-8 w-8 text-[#2E8B57]" />
+                </div>
+                <CardTitle className="text-2xl font-semibold">{feature.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-base text-gray-600">
+                  {feature.description}
+                </CardDescription>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
 
-      {/* Quick Actions Section */}
-      <section className="bg-secondary/50 py-16">
+      {/* Sección de Testimonios */}
+      <section className="bg-gray-50 py-20">
         <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Lo que dicen nuestros clientes
+            </h3>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Miles de personas ya han transformado sus vidas con NutriSystem.
+            </p>
+          </div>
           <div className="grid md:grid-cols-2 gap-8">
-            <Link to="/inicio/emergencia">
-              <Card className="h-full hover:shadow-lg transition-smooth border-2 border-accent/20 hover:border-accent bg-gradient-card">
-                <CardHeader>
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-accent text-accent-foreground rounded-lg">
-                      <Phone className="h-8 w-8" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-2xl">Consulta Urgente</CardTitle>
-                      <CardDescription className="text-base">
-                        Necesitas asistencia inmediata? Nuestro equipo está disponible 24/7
-                      </CardDescription>
-                    </div>
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="shadow-lg p-6 flex flex-col items-start bg-white">
+                <div className="flex items-center mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <svg key={i} className="h-5 w-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                      <path d="M10 15.27L16.18 19l-1.64-7.03L20 7.24l-7.19-.61L10 0 7.19 6.63 0 7.24l5.46 4.73L3.82 19z"/>
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-lg italic text-gray-700 mb-4">{testimonial.text}</p>
+                <div className="flex items-center">
+                  <img 
+                    src={testimonial.avatar} 
+                    alt={testimonial.name} 
+                    className="h-12 w-12 rounded-full mr-4 object-cover" 
+                  />
+                  <div>
+                    <p className="font-semibold text-gray-900">{testimonial.name}</p>
                   </div>
-                </CardHeader>
+                </div>
               </Card>
-            </Link>
-
-            <Link to="/inicio/recetas">
-              <Card className="h-full hover:shadow-lg transition-smooth border-2 border-primary/20 hover:border-primary bg-gradient-card">
-                <CardHeader>
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-primary text-primary-foreground rounded-lg">
-                      <BookOpen className="h-8 w-8" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-2xl">Centro de Recursos</CardTitle>
-                      <CardDescription className="text-base">
-                        Guías, artículos y herramientas para tu educación nutricional
-                      </CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
+            ))}
           </div>
         </div>
       </section>
