@@ -236,8 +236,8 @@ function HomeRouter() {
     const { user, loading } = useAuth();
     if (loading) return null;
     if (user) {
-        const needsOnboarding = user.role === 'paciente' && localStorage.getItem('onboardingComplete') !== 'true';
-        return needsOnboarding ? <Navigate to="/onboarding" replace /> : <Navigate to="/dashboard" replace />;
+        // Los pacientes ya no necesitan onboarding, van directo al dashboard
+        return <Navigate to="/dashboard" replace />;
     }
     return <Inicio />;
 }

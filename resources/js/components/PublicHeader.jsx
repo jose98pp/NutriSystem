@@ -36,12 +36,12 @@ const PublicHeader = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img
-              src="/images/company-logo.png"
-              alt="Nutri System"
-              className="h-8 w-8 object-contain"
+              src="/images/nutrisystem-logo.svg"
+              alt="NutriSystem"
+              className="h-10 w-10 object-contain"
             />
-            <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Nutri System
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
+              NutriSystem
             </h1>
           </Link>
 
