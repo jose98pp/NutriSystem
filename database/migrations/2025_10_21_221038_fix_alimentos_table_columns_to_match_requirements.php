@@ -60,10 +60,19 @@ return new class extends Migration
         // Categorías que no están en el nuevo ENUM, convertir a 'otro'
         DB::statement("UPDATE alimentos SET categoria = 'otro' WHERE categoria IN ('legumbres', 'frutos_secos', 'bebidas')");
 
-        // Modificar el ENUM de categorías (solo en MySQL, SQLite no soporta ENUM)
-        if (DB::getDriverName() !== 'sqlite') {
+        // Modificar el ENUM de categorías según el driver de base de datos
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'mysql') {
+            // MySQL usa MODIFY
             DB::statement("ALTER TABLE alimentos MODIFY categoria ENUM('fruta', 'verdura', 'cereal', 'proteina', 'lacteo', 'grasa', 'otro') DEFAULT 'otro'");
+        } elseif ($driver === 'pgsql') {
+            // PostgreSQL: Eliminar constraint anterior si existe y crear uno nuevo
+            DB::statement("ALTER TABLE alimentos DROP CONSTRAINT IF EXISTS alimentos_categoria_check");
+            DB::statement("ALTER TABLE alimentos ADD CONSTRAINT alimentos_categoria_check CHECK (categoria IN ('fruta', 'verdura', 'cereal', 'proteina', 'lacteo', 'grasa', 'otro'))");
+            DB::statement("ALTER TABLE alimentos ALTER COLUMN categoria SET DEFAULT 'otro'");
         }
+        // SQLite no necesita cambios, usa VARCHAR
     }
 
     /**
@@ -73,9 +82,16 @@ return new class extends Migration
     {
         // Revertir cambios en orden inverso
         
-        // Restaurar ENUM original (solo en MySQL, SQLite no soporta ENUM)
-        if (DB::getDriverName() !== 'sqlite') {
+        // Restaurar ENUM original según el driver de base de datos
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'mysql') {
             DB::statement("ALTER TABLE alimentos MODIFY categoria ENUM('frutas', 'verduras', 'cereales', 'proteinas', 'lacteos', 'legumbres', 'frutos_secos', 'grasas', 'bebidas', 'otro') DEFAULT 'otro'");
+        } elseif ($driver === 'pgsql') {
+            // PostgreSQL: Eliminar constraint y crear uno nuevo con valores originales
+            DB::statement("ALTER TABLE alimentos DROP CONSTRAINT IF EXISTS alimentos_categoria_check");
+            DB::statement("ALTER TABLE alimentos ADD CONSTRAINT alimentos_categoria_check CHECK (categoria IN ('frutas', 'verduras', 'cereales', 'proteinas', 'lacteos', 'legumbres', 'frutos_secos', 'grasas', 'bebidas', 'otro'))");
+            DB::statement("ALTER TABLE alimentos ALTER COLUMN categoria SET DEFAULT 'otro'");
         }
 
         // Revertir valores de categorías
