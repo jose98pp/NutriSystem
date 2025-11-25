@@ -24,22 +24,27 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const params = new URLSearchParams();
-            params.append('email', email);
-            params.append('password', password);
-            const response = await api.post('/login', params, {
+            const response = await api.post('/login', {
+                email,
+                password
+            }, {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 }
             });
-            const { user, access_token } = response.data;
-            localStorage.setItem('token', access_token);
+            
+            // El backend devuelve 'token' no 'access_token'
+            const { user, token } = response.data;
+            
+            localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
             setUser(user);
+            
             if (user?.role === 'paciente' && !localStorage.getItem('onboardingComplete')) {
                 localStorage.setItem('onboardingComplete', 'false');
             }
+            
             return { success: true };
         } catch (error) {
             // Log the raw error for easier debugging in development
@@ -50,8 +55,8 @@ export const AuthProvider = ({ children }) => {
             
             if (!error.response) {
                 // Error de red - servidor no responde
-                errorMessage = 'No se pudo conectar con el servidor. Verifica que el servidor esté corriendo.';
-                console.error('🔴 Servidor no disponible. Ejecuta: php artisan serve');
+                errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+                console.error('🔴 Servidor no disponible');
             } else if (error.response.status === 422 || error.response.status === 401) {
                 // Credenciales incorrectas
                 errorMessage = error.response.data?.message || 'Credenciales incorrectas';
@@ -75,32 +80,27 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
-            const params = new URLSearchParams();
-            if (userData?.name) params.append('name', userData.name);
-            if (userData?.email) params.append('email', userData.email);
-            if (userData?.telefono) params.append('telefono', userData.telefono);
-            if (userData?.password) params.append('password', userData.password);
-            if (userData?.passwordConfirmation) params.append('password_confirmation', userData.passwordConfirmation);
-            if (userData?.fecha_nacimiento) params.append('fecha_nacimiento', userData.fecha_nacimiento);
-            if (userData?.genero) params.append('genero', userData.genero);
-            if (userData?.id_nutricionista) params.append('id_nutricionista', userData.id_nutricionista);
-            const response = await api.post('/register', params, {
+            const response = await api.post('/register', userData, {
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 }
             });
-            const { user, access_token } = response.data;
             
-            localStorage.setItem('token', access_token);
+            // El backend devuelve 'token' no 'access_token'
+            const { user, token } = response.data;
+            
+            localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
             setUser(user);
+            
             if (user?.role === 'paciente') {
                 localStorage.setItem('onboardingComplete', 'false');
             }
             
             return { success: true };
         } catch (error) {
+            console.error('Register error:', error);
             return { 
                 success: false, 
                 error: error.response?.data?.message || 'Error al registrarse' 
