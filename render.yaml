@@ -2,10 +2,10 @@ services:
   # Servicio Web (Laravel + React)
   - type: web
     name: nutricion-app
-    runtime: php
+    runtime: docker
     plan: free
-    buildCommand: bash build.sh
-    startCommand: bash start.sh
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     envVars:
       - key: APP_NAME
         value: "Sistema Nutricional"

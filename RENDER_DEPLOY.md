@@ -19,8 +19,12 @@ Esta guía te ayudará a desplegar tu aplicación Laravel + React en Render de f
 Los siguientes archivos ya fueron creados en tu proyecto:
 
 - ✅ `render.yaml` - Configuración de servicios
-- ✅ `build.sh` - Script de construcción
-- ✅ `start.sh` - Script de inicio
+- ✅ `Dockerfile` - Imagen Docker con PHP 8.2 + Apache
+- ✅ `docker/apache.conf` - Configuración de Apache
+- ✅ `docker/start.sh` - Script de inicio del contenedor
+- ✅ `.dockerignore` - Archivos excluidos del build
+- ✅ `build.sh` - Script de construcción (legacy)
+- ✅ `start.sh` - Script de inicio (legacy)
 - ✅ `.env.render` - Plantilla de variables de entorno
 
 ### 1.2 Actualizar .gitignore
@@ -62,12 +66,15 @@ git push origin main
 
 ### 2.2 Opción A: Deploy Automático con render.yaml (Recomendado)
 
+> [!NOTE]
+> Esta aplicación usa **Docker** como runtime. Render construirá una imagen Docker con PHP 8.2 + Apache automáticamente.
+
 1. Click en **"New +"** → **"Blueprint"**
 2. Conecta tu repositorio
 3. Render detectará automáticamente el archivo `render.yaml`
 4. Click en **"Apply"**
 5. Render creará automáticamente:
-   - ✅ Servicio Web (Laravel + React)
+   - ✅ Servicio Web (Laravel + React con Docker)
    - ✅ Base de datos MySQL
 
 ### 2.2 Opción B: Deploy Manual
@@ -90,9 +97,9 @@ Si prefieres configurar manualmente:
 2. Conecta tu repositorio
 3. Configura:
    - **Name:** `nutricion-app`
-   - **Runtime:** PHP
-   - **Build Command:** `bash build.sh`
-   - **Start Command:** `bash start.sh`
+   - **Runtime:** Docker
+   - **Dockerfile Path:** `./Dockerfile`
+   - **Docker Context:** `.`
    - **Plan:** Free
 
 ---
