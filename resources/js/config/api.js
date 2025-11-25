@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { logApiError, logDebug, logWarn } from '../utils/logger';
 
-const apiBase = (import.meta.env.VITE_API_URL || 'https://nutrisystem.onrender.com/api');
+const apiBase = (import.meta.env.VITE_API_URL || 'https://nutrisystem.onrender.com');
 const needsIndex = apiBase.includes('/Nutricion/public');
 const api = axios.create({
     baseURL: apiBase + (needsIndex ? '/index.php/api' : '/api'),
