@@ -15,14 +15,19 @@ return new class extends Migration
         DB::statement("UPDATE comidas SET tipo_comida = 'CENA' WHERE tipo_comida = 'cena'");
         DB::statement("UPDATE comidas SET tipo_comida = 'COLACION_MATUTINA' WHERE tipo_comida = 'snack'");
         
-        // Solo modificar ENUM en MySQL (SQLite no soporta ENUM ni MODIFY)
-        if (DB::getDriverName() !== 'sqlite') {
-            // Cambiar temporalmente tipo_comida a VARCHAR para evitar problemas con ENUM
+        // Modificar ENUM según el driver de base de datos
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'mysql') {
+            // MySQL: Cambiar temporalmente a VARCHAR y luego a ENUM
             DB::statement("ALTER TABLE comidas MODIFY tipo_comida VARCHAR(50) NOT NULL");
-            
-            // Ahora convertir a ENUM con los nuevos valores
             DB::statement("ALTER TABLE comidas MODIFY tipo_comida ENUM('DESAYUNO', 'COLACION_MATUTINA', 'ALMUERZO', 'COLACION_VESPERTINA', 'CENA') NOT NULL");
+        } elseif ($driver === 'pgsql') {
+            // PostgreSQL: Usar CHECK constraint
+            DB::statement("ALTER TABLE comidas DROP CONSTRAINT IF EXISTS comidas_tipo_comida_check");
+            DB::statement("ALTER TABLE comidas ADD CONSTRAINT comidas_tipo_comida_check CHECK (tipo_comida IN ('DESAYUNO', 'COLACION_MATUTINA', 'ALMUERZO', 'COLACION_VESPERTINA', 'CENA'))");
         }
+        // SQLite no necesita cambios
         
         // Agregar nuevas columnas
         Schema::table('comidas', function (Blueprint $table) {
@@ -45,13 +50,17 @@ return new class extends Migration
         DB::statement("UPDATE comidas SET tipo_comida = 'cena' WHERE tipo_comida = 'CENA'");
         DB::statement("UPDATE comidas SET tipo_comida = 'snack' WHERE tipo_comida IN ('COLACION_MATUTINA', 'COLACION_VESPERTINA')");
         
-        // Solo modificar ENUM en MySQL (SQLite no soporta ENUM ni MODIFY)
-        if (DB::getDriverName() !== 'sqlite') {
-            // Cambiar a VARCHAR temporal
+        // Modificar ENUM según el driver de base de datos
+        $driver = DB::getDriverName();
+        
+        if ($driver === 'mysql') {
+            // MySQL: Cambiar a VARCHAR temporal y luego a ENUM original
             DB::statement("ALTER TABLE comidas MODIFY tipo_comida VARCHAR(50) NOT NULL");
-            
-            // Convertir de vuelta a ENUM con valores antiguos
             DB::statement("ALTER TABLE comidas MODIFY tipo_comida ENUM('desayuno', 'almuerzo', 'cena', 'snack') NOT NULL");
+        } elseif ($driver === 'pgsql') {
+            // PostgreSQL: Restaurar CHECK constraint original
+            DB::statement("ALTER TABLE comidas DROP CONSTRAINT IF EXISTS comidas_tipo_comida_check");
+            DB::statement("ALTER TABLE comidas ADD CONSTRAINT comidas_tipo_comida_check CHECK (tipo_comida IN ('desayuno', 'almuerzo', 'cena', 'snack'))");
         }
     }
 };
