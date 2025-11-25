@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, User, Phone, Calendar, Heart, TrendingUp, Sparkles, UserCheck } from 'lucide-react';
 
 const Register = () => {
+    const { register } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         apellido: '',
@@ -29,26 +31,15 @@ const Register = () => {
         setLoading(true);
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || window.location.origin}/api/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
+            const result = await register(formData);
 
-            const data = await response.json();
-
-            if (response.ok && data.success) {
-                // Redirigir al login con mensaje de éxito
-                navigate('/login', { 
-                    state: { 
-                        message: 'Registro exitoso. Por favor verifica tu correo electrónico.' 
-                    } 
-                });
+            if (result.success) {
+                // Marcar onboarding como completado para que entre directo al dashboard
+                localStorage.setItem('onboardingComplete', 'true');
+                // Redirigir al dashboard
+                navigate('/dashboard');
             } else {
-                setError(data.message || 'Error al registrar usuario');
+                setError(result.error || 'Error al registrar usuario');
             }
         } catch (err) {
             setError('Error de conexión. Por favor intenta nuevamente.');
