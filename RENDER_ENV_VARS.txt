@@ -1,0 +1,62 @@
+# ========================================
+# VARIABLES DE ENTORNO PARA RENDER
+# Dominio: https://nutrisystem.onrender.com
+# ========================================
+# Copia y pega estas variables en el dashboard de Render
+# Environment → Add Environment Variable
+
+# ========================================
+# APLICACIÓN
+# ========================================
+APP_NAME=Sistema Nutricional
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://nutrisystem.onrender.com
+APP_KEY=base64:RDP8lZTVMQDDAFWj/dyHs/bITvJCWBGFA2EsXSIOfpI=
+
+# ========================================
+# SANCTUM (Autenticación)
+# ========================================
+SANCTUM_STATEFUL_DOMAINS=nutrisystem.onrender.com
+SESSION_DOMAIN=.nutrisystem.onrender.com
+ASSET_URL=https://nutrisystem.onrender.com
+
+# ========================================
+# SESIONES Y CACHÉ
+# ========================================
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+CACHE_DRIVER=database
+QUEUE_CONNECTION=database
+
+# ========================================
+# LOGS
+# ========================================
+LOG_CHANNEL=stack
+LOG_LEVEL=error
+
+# ========================================
+# BASE DE DATOS
+# ========================================
+# NOTA: Si usaste Blueprint, estas variables se configuran automáticamente
+# desde la base de datos MySQL que Render creó.
+# Solo necesitas agregarlas manualmente si configuraste el servicio manualmente.
+
+DB_CONNECTION=mysql
+# DB_HOST=<se configura automáticamente desde la BD>
+# DB_PORT=<se configura automáticamente desde la BD>
+# DB_DATABASE=<se configura automáticamente desde la BD>
+# DB_USERNAME=<se configura automáticamente desde la BD>
+# DB_PASSWORD=<se configura automáticamente desde la BD>
+
+# ========================================
+# MAIL (Opcional - Configura si usas email)
+# ========================================
+# MAIL_MAILER=smtp
+# MAIL_HOST=smtp.mailtrap.io
+# MAIL_PORT=2525
+# MAIL_USERNAME=null
+# MAIL_PASSWORD=null
+# MAIL_ENCRYPTION=null
+# MAIL_FROM_ADDRESS="hello@example.com"
+# MAIL_FROM_NAME="${APP_NAME}"

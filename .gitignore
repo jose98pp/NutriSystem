@@ -24,6 +24,7 @@ Thumbs.db
 # Excepciones: mantener README.md y otros .md que quieras conservar
 !README.md
 !RENDER_DEPLOY.md
+!DEPLOY_RAPIDO.md
 # Si README hace referencia a docs/INSTALL.md por ejemplo, descomenta la línea siguiente
 # !docs/INSTALL.md
 
