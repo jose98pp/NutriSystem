@@ -34,10 +34,19 @@ export const AuthProvider = ({ children }) => {
                 }
             });
             
-            // El backend devuelve 'token' no 'access_token'
-            const { user, token } = response.data;
+            // El backend devuelve 'access_token'
+            const { user, access_token, token } = response.data;
+            const authToken = access_token || token; // Compatibilidad con ambas versiones
             
-            localStorage.setItem('token', token);
+            if (!authToken) {
+                console.error('No se recibió token en la respuesta:', response.data);
+                return {
+                    success: false,
+                    error: 'Error: No se recibió token de autenticación'
+                };
+            }
+            
+            localStorage.setItem('token', authToken);
             localStorage.setItem('user', JSON.stringify(user));
             setUser(user);
             
@@ -87,10 +96,19 @@ export const AuthProvider = ({ children }) => {
                 }
             });
             
-            // El backend devuelve 'token' no 'access_token'
-            const { user, token } = response.data;
+            // El backend devuelve 'access_token'
+            const { user, access_token, token } = response.data;
+            const authToken = access_token || token; // Compatibilidad con ambas versiones
             
-            localStorage.setItem('token', token);
+            if (!authToken) {
+                console.error('No se recibió token en la respuesta:', response.data);
+                return { 
+                    success: false, 
+                    error: 'Error: No se recibió token de autenticación'
+                };
+            }
+            
+            localStorage.setItem('token', authToken);
             localStorage.setItem('user', JSON.stringify(user));
             setUser(user);
             
