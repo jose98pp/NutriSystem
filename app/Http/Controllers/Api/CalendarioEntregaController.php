@@ -14,19 +14,39 @@ class CalendarioEntregaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = CalendarioEntrega::with(['contrato.paciente', 'entregas']);
+        try {
+            $query = CalendarioEntrega::query();
 
-        // Filtro por contrato
-        if ($request->has('id_contrato')) {
-            $query->where('id_contrato', $request->id_contrato);
+            // Intentar cargar relaciones si existen
+            try {
+                $query->with(['contrato.paciente', 'entregas']);
+            } catch (\Exception $e) {
+                // Si las relaciones no existen, continuar sin ellas
+                \Log::warning('Error cargando relaciones en CalendarioEntrega::index', ['error' => $e->getMessage()]);
+            }
+
+            // Filtro por contrato
+            if ($request->has('id_contrato')) {
+                $query->where('id_contrato', $request->id_contrato);
+            }
+
+            $calendarios = $query->paginate($request->get('per_page', 15));
+
+            return response()->json([
+                'success' => true,
+                'data' => $calendarios
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error en CalendarioEntregaController::index', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener calendarios de entrega',
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
+            ], 500);
         }
-
-        $calendarios = $query->paginate($request->get('per_page', 15));
-
-        return response()->json([
-            'success' => true,
-            'data' => $calendarios
-        ]);
     }
 
     /**

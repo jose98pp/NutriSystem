@@ -16,35 +16,55 @@ class EntregaProgramadaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = EntregaProgramada::with(['calendario.contrato.paciente', 'direccion', 'comida']);
+        try {
+            $query = EntregaProgramada::query();
 
-        // Filtro por calendario
-        if ($request->has('id_calendario')) {
-            $query->where('id_calendario', $request->id_calendario);
+            // Intentar cargar relaciones si existen
+            try {
+                $query->with(['calendario.contrato.paciente', 'direccion', 'comida']);
+            } catch (\Exception $e) {
+                // Si las relaciones no existen, continuar sin ellas
+                \Log::warning('Error cargando relaciones en EntregaProgramada::index', ['error' => $e->getMessage()]);
+            }
+
+            // Filtro por calendario
+            if ($request->has('id_calendario')) {
+                $query->where('id_calendario', $request->id_calendario);
+            }
+
+            // Filtro por estado
+            if ($request->has('estado')) {
+                $query->where('estado', $request->estado);
+            }
+
+            // Filtro por rango de fechas
+            if ($request->has('fecha_desde')) {
+                $query->where('fecha', '>=', $request->fecha_desde);
+            }
+            if ($request->has('fecha_hasta')) {
+                $query->where('fecha', '<=', $request->fecha_hasta);
+            }
+
+            // Ordenar por fecha
+            $query->orderBy('fecha', 'asc');
+
+            $entregas = $query->paginate($request->get('per_page', 15));
+
+            return response()->json([
+                'success' => true,
+                'data' => $entregas
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error en EntregaProgramadaController::index', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener entregas programadas',
+                'error' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
+            ], 500);
         }
-
-        // Filtro por estado
-        if ($request->has('estado')) {
-            $query->where('estado', $request->estado);
-        }
-
-        // Filtro por rango de fechas
-        if ($request->has('fecha_desde')) {
-            $query->where('fecha', '>=', $request->fecha_desde);
-        }
-        if ($request->has('fecha_hasta')) {
-            $query->where('fecha', '<=', $request->fecha_hasta);
-        }
-
-        // Ordenar por fecha
-        $query->orderBy('fecha', 'asc');
-
-        $entregas = $query->paginate($request->get('per_page', 15));
-
-        return response()->json([
-            'success' => true,
-            'data' => $entregas
-        ]);
     }
 
     /**

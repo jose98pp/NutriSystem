@@ -73,7 +73,16 @@ const Footer = () => {
             <h5 className="font-semibold mb-4">Contacto</h5>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>info@nutrisystem.com</li>
-              <li>+1 (555) 123-4567</li>
+             <li>
+                <a 
+                  href="https://wa.me/59171088334?text=Hola,%20necesito%20asistencia%20nutricional" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-smooth"
+                >
+                  +59171088334
+                </a>
+              </li>
               <li>Lun - Dom: 24/7</li>
             </ul>
           </div>

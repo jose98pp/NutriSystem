@@ -123,10 +123,13 @@ class DashboardController extends Controller
                 'distribucion_imc' => $distribucionIMC
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error en getNutricionistaStats: ' . $e->getMessage());
+            \Log::error('Error en getNutricionistaStats', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'error' => 'Error al obtener estadísticas',
-                'message' => $e->getMessage()
+                'message' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
             ], 500);
         }
     }
@@ -224,10 +227,13 @@ class DashboardController extends Controller
                 'calorias_promedio' => $caloriasPromedio
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error en getPacienteStats: ' . $e->getMessage());
+            \Log::error('Error en getPacienteStats', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'error' => 'Error al obtener estadísticas del paciente',
-                'message' => $e->getMessage()
+                'message' => config('app.debug') ? $e->getMessage() : 'Error interno del servidor'
             ], 500);
         }
     }

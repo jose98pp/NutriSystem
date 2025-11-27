@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Phone, ArrowLeft, Clock, AlertCircle } from "lucide-react";
+import { Phone, ArrowLeft, Clock, AlertCircle, MessageCircle } from "lucide-react";
 import PublicLayout from "../../components/PublicLayout";
 
 const Emergencias = () => {
@@ -28,7 +28,7 @@ const Emergencias = () => {
                 <AlertCircle className="h-5 w-5 text-primary mt-0.5" />
                 <div>
                   <p className="font-medium mb-1">Línea de Emergencia</p>
-                  <p className="text-2xl font-bold text-primary">1-800-NUTRICION</p>
+                  <p className="text-2xl font-bold text-primary">+591 71088334</p>
                 </div>
               </div>
 
@@ -40,10 +40,26 @@ const Emergencias = () => {
                 </div>
               </div>
 
-              <Button variant="hero" size="lg" className="w-full">
-                <Phone className="h-5 w-5 mr-2" />
-                Llamar Ahora
-              </Button>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <a href="tel:+59171088334" className="w-full">
+                  <Button variant="hero" size="lg" className="w-full">
+                    <Phone className="h-5 w-5 mr-2" />
+                    Llamar Ahora
+                  </Button>
+                </a>
+                
+                <a 
+                  href="https://wa.me/59171088334?text=Hola,%20necesito%20asistencia%20nutricional" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <Button variant="outline" size="lg" className="w-full border-green-500 text-green-600 hover:bg-green-50">
+                    <MessageCircle className="h-5 w-5 mr-2" />
+                    WhatsApp
+                  </Button>
+                </a>
+              </div>
             </CardContent>
           </Card>
         </div>
