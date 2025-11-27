@@ -21,6 +21,16 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
+        if (!$user) {
+            \Log::error('DashboardController::getStats - User not authenticated', [
+                'headers' => $request->headers->all(),
+                'token' => $request->bearerToken(),
+            ]);
+            return response()->json([
+                'error' => 'Usuario no autenticado'
+            ], 401);
+        }
+
         if ($user->role === 'nutricionista' || $user->role === 'admin') {
             return $this->getNutricionistaStats($user);
         } else {

@@ -83,13 +83,27 @@ class NotificationController extends Controller
     public function countUnread(Request $request)
     {
         try {
-            $count = Notification::where('id_usuario', $request->user()->id)
+            $user = $request->user();
+            
+            if (!$user) {
+                \Log::error('NotificationController::countUnread - User not authenticated', [
+                    'headers' => $request->headers->all(),
+                    'token' => $request->bearerToken(),
+                ]);
+                return response()->json(['count' => 0]);
+            }
+            
+            $count = Notification::where('id_usuario', $user->id)
                 ->where('leida', false)
                 ->count();
 
             return response()->json(['count' => $count]);
         } catch (\Exception $e) {
             // Si hay error (tabla no existe, etc), devolver 0
+            \Log::error('NotificationController::countUnread - Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json(['count' => 0]);
         }
     }

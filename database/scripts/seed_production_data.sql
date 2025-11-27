@@ -96,7 +96,7 @@ VALUES (
 -- 2. NUTRICIONISTAS
 -- ============================================
 
-INSERT INTO nutricionistas (user_id, nombre, apellido, email, celular, especialidad, created_at, updated_at)
+INSERT INTO nutricionistas (user_id, nombre, apellido, email, telefono, especialidad, created_at, updated_at)
 SELECT 
     u.id,
     'Carlos',
@@ -110,7 +110,7 @@ FROM users u
 WHERE u.email = 'carlos@nutricion.com'
 ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO nutricionistas (user_id, nombre, apellido, email, celular, especialidad, created_at, updated_at)
+INSERT INTO nutricionistas (user_id, nombre, apellido, email, telefono, especialidad, created_at, updated_at)
 SELECT 
     u.id,
     'María',
@@ -128,7 +128,7 @@ ON CONFLICT (email) DO NOTHING;
 -- 3. PACIENTES
 -- ============================================
 
-INSERT INTO pacientes (user_id, nombre, apellido, email, celular, fecha_nacimiento, genero, created_at, updated_at)
+INSERT INTO pacientes (user_id, nombre, apellido, email, telefono, fecha_nacimiento, genero, created_at, updated_at)
 SELECT 
     u.id,
     'Juan',
@@ -136,14 +136,14 @@ SELECT
     'juan@example.com',
     '+59171088337',
     '1990-05-15',
-    'Masculino',
+    'M',
     NOW(),
     NOW()
 FROM users u
 WHERE u.email = 'juan@example.com'
 ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO pacientes (user_id, nombre, apellido, email, celular, fecha_nacimiento, genero, created_at, updated_at)
+INSERT INTO pacientes (user_id, nombre, apellido, email, telefono, fecha_nacimiento, genero, created_at, updated_at)
 SELECT 
     u.id,
     'Ana',
@@ -151,7 +151,7 @@ SELECT
     'ana@example.com',
     '+59171088338',
     '1985-08-20',
-    'Femenino',
+    'F',
     NOW(),
     NOW()
 FROM users u
@@ -162,69 +162,80 @@ ON CONFLICT (email) DO NOTHING;
 -- 4. PSICÓLOGOS
 -- ============================================
 
-INSERT INTO psicologos (user_id, nombre, apellido, email, celular, especialidad, created_at, updated_at)
+INSERT INTO psicologos (user_id, nombre, apellido, telefono, especialidad, estado, cedula_profesional, created_at, updated_at)
 SELECT 
     u.id,
     'Roberto',
     'Silva',
-    'roberto@psicologo.com',
     '+59171088339',
     'Psicología Clínica',
+    'ACTIVO',
+    'PSI-001',
     NOW(),
     NOW()
 FROM users u
 WHERE u.email = 'roberto@psicologo.com'
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT DO NOTHING;
 
 -- ============================================
 -- 5. SERVICIOS
 -- ============================================
 
-INSERT INTO servicios (nombre, descripcion, precio, duracion_dias, created_at, updated_at)
-VALUES 
-    ('Plan Básico', 'Plan nutricional básico con seguimiento mensual', 150.00, 30, NOW(), NOW()),
-    ('Plan Premium', 'Plan nutricional completo con seguimiento semanal y recetas personalizadas', 300.00, 30, NOW(), NOW()),
-    ('Plan Elite', 'Plan nutricional elite con seguimiento diario, recetas, y consultas ilimitadas', 500.00, 30, NOW(), NOW()),
-    ('Consulta Individual', 'Consulta nutricional individual de 1 hora', 50.00, 1, NOW(), NOW()),
-    ('Sesión Psicológica', 'Sesión de psicología individual de 1 hora', 60.00, 1, NOW(), NOW())
-ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO servicios (nombre, descripcion, costo, duracion_dias, tipo_servicio, created_at, updated_at)
+SELECT v.nombre, v.descripcion, v.costo, v.duracion_dias, v.tipo_servicio, NOW(), NOW()
+FROM (
+    VALUES
+        ('Plan Básico', 'Plan nutricional básico con seguimiento mensual', 150.00, 30, 'plan_alimenticio'),
+        ('Plan Premium', 'Plan nutricional completo con seguimiento semanal y recetas personalizadas', 300.00, 30, 'plan_alimenticio'),
+        ('Plan Elite', 'Plan nutricional elite con seguimiento diario, recetas, y consultas ilimitadas', 500.00, 30, 'plan_alimenticio'),
+        ('Consulta Individual', 'Consulta nutricional individual de 1 hora', 50.00, 1, 'asesoramiento'),
+        ('Sesión Psicológica', 'Sesión de psicología individual de 1 hora', 60.00, 1, 'asesoramiento')
+) AS v(nombre, descripcion, costo, duracion_dias, tipo_servicio)
+WHERE NOT EXISTS (
+    SELECT 1 FROM servicios s WHERE s.nombre = v.nombre
+);
 
 -- ============================================
 -- 6. ALIMENTOS BÁSICOS
 -- ============================================
 
-INSERT INTO alimentos (nombre, categoria, calorias, proteinas, carbohidratos, grasas, fibra, created_at, updated_at)
-VALUES 
-    -- Proteínas
-    ('Pechuga de Pollo', 'Proteínas', 165, 31.0, 0.0, 3.6, 0.0, NOW(), NOW()),
-    ('Huevo', 'Proteínas', 155, 13.0, 1.1, 11.0, 0.0, NOW(), NOW()),
-    ('Atún en agua', 'Proteínas', 116, 26.0, 0.0, 1.0, 0.0, NOW(), NOW()),
-    ('Salmón', 'Proteínas', 208, 20.0, 0.0, 13.0, 0.0, NOW(), NOW()),
-    
-    -- Carbohidratos
-    ('Arroz integral', 'Carbohidratos', 370, 7.9, 77.2, 2.9, 3.5, NOW(), NOW()),
-    ('Avena', 'Carbohidratos', 389, 16.9, 66.3, 6.9, 10.6, NOW(), NOW()),
-    ('Pan integral', 'Carbohidratos', 247, 13.0, 41.0, 4.0, 7.0, NOW(), NOW()),
-    ('Quinoa', 'Carbohidratos', 368, 14.1, 64.2, 6.1, 7.0, NOW(), NOW()),
-    
-    -- Vegetales
-    ('Brócoli', 'Vegetales', 34, 2.8, 7.0, 0.4, 2.6, NOW(), NOW()),
-    ('Espinaca', 'Vegetales', 23, 2.9, 3.6, 0.4, 2.2, NOW(), NOW()),
-    ('Tomate', 'Vegetales', 18, 0.9, 3.9, 0.2, 1.2, NOW(), NOW()),
-    ('Zanahoria', 'Vegetales', 41, 0.9, 10.0, 0.2, 2.8, NOW(), NOW()),
-    
-    -- Frutas
-    ('Manzana', 'Frutas', 52, 0.3, 14.0, 0.2, 2.4, NOW(), NOW()),
-    ('Plátano', 'Frutas', 89, 1.1, 23.0, 0.3, 2.6, NOW(), NOW()),
-    ('Naranja', 'Frutas', 47, 0.9, 12.0, 0.1, 2.4, NOW(), NOW()),
-    ('Fresa', 'Frutas', 32, 0.7, 7.7, 0.3, 2.0, NOW(), NOW()),
-    
-    -- Grasas saludables
-    ('Aguacate', 'Grasas', 160, 2.0, 8.5, 14.7, 6.7, NOW(), NOW()),
-    ('Almendras', 'Grasas', 579, 21.2, 21.6, 49.9, 12.5, NOW(), NOW()),
-    ('Aceite de oliva', 'Grasas', 884, 0.0, 0.0, 100.0, 0.0, NOW(), NOW()),
-    ('Nueces', 'Grasas', 654, 15.2, 13.7, 65.2, 6.7, NOW(), NOW())
-ON CONFLICT (nombre) DO NOTHING;
+INSERT INTO alimentos (nombre, categoria, calorias_por_100g, proteinas_por_100g, carbohidratos_por_100g, grasas_por_100g, created_at, updated_at)
+SELECT v.nombre, v.categoria, v.calorias, v.proteinas, v.carbohidratos, v.grasas, NOW(), NOW()
+FROM (
+    VALUES
+        -- Proteínas
+        ('Pechuga de Pollo', 'proteina', 165, 31.0, 0.0, 3.6),
+        ('Huevo', 'proteina', 155, 13.0, 1.1, 11.0),
+        ('Atún en agua', 'proteina', 116, 26.0, 0.0, 1.0),
+        ('Salmón', 'proteina', 208, 20.0, 0.0, 13.0),
+
+        -- Carbohidratos / cereales
+        ('Arroz integral', 'cereal', 370, 7.9, 77.2, 2.9),
+        ('Avena', 'cereal', 389, 16.9, 66.3, 6.9),
+        ('Pan integral', 'cereal', 247, 13.0, 41.0, 4.0),
+        ('Quinoa', 'cereal', 368, 14.1, 64.2, 6.1),
+
+        -- Verduras
+        ('Brócoli', 'verdura', 34, 2.8, 7.0, 0.4),
+        ('Espinaca', 'verdura', 23, 2.9, 3.6, 0.4),
+        ('Tomate', 'verdura', 18, 0.9, 3.9, 0.2),
+        ('Zanahoria', 'verdura', 41, 0.9, 10.0, 0.2),
+
+        -- Frutas
+        ('Manzana', 'fruta', 52, 0.3, 14.0, 0.2),
+        ('Plátano', 'fruta', 89, 1.1, 23.0, 0.3),
+        ('Naranja', 'fruta', 47, 0.9, 12.0, 0.1),
+        ('Fresa', 'fruta', 32, 0.7, 7.7, 0.3),
+
+        -- Grasas saludables
+        ('Aguacate', 'grasa', 160, 2.0, 8.5, 14.7),
+        ('Almendras', 'grasa', 579, 21.2, 21.6, 49.9),
+        ('Aceite de oliva', 'grasa', 884, 0.0, 0.0, 100.0),
+        ('Nueces', 'grasa', 654, 15.2, 13.7, 65.2)
+) AS v(nombre, categoria, calorias, proteinas, carbohidratos, grasas)
+WHERE NOT EXISTS (
+    SELECT 1 FROM alimentos a WHERE a.nombre = v.nombre
+);
 
 COMMIT;
 
@@ -234,26 +245,33 @@ COMMIT;
 
 -- Mostrar usuarios creados
 SELECT 
-    '=== USUARIOS CREADOS ===' as info,
-    '' as email,
-    '' as role,
-    '' as password_hint
-UNION ALL
-SELECT 
-    u.name,
-    u.email,
-    u.role,
-    'password' as password_hint
-FROM users u
-ORDER BY 
-    CASE 
-        WHEN role = 'admin' THEN 1
-        WHEN role = 'nutricionista' THEN 2
-        WHEN role = 'paciente' THEN 3
-        WHEN role = 'psicologo' THEN 4
-        ELSE 5
-    END,
-    u.email;
+    info,
+    email,
+    role,
+    password_hint
+FROM (
+    SELECT 
+        0 AS sort_order,
+        '=== USUARIOS CREADOS ===' AS info,
+        '' AS email,
+        '' AS role,
+        '' AS password_hint
+    UNION ALL
+    SELECT 
+        CASE 
+            WHEN u.role = 'admin' THEN 1
+            WHEN u.role = 'nutricionista' THEN 2
+            WHEN u.role = 'paciente' THEN 3
+            WHEN u.role = 'psicologo' THEN 4
+            ELSE 5
+        END AS sort_order,
+        u.name AS info,
+        u.email,
+        u.role,
+        'password' AS password_hint
+    FROM users u
+) ordered_rows
+ORDER BY sort_order, email;
 
 -- Contar registros
 SELECT 
@@ -279,19 +297,19 @@ SELECT
 UNION ALL SELECT 'CREDENCIALES DE ACCESO'
 UNION ALL SELECT '========================================'
 UNION ALL SELECT ''
-UNION ALL SELECT '📧 Todos los usuarios usan la contraseña: password'
+UNION ALL SELECT 'Todos los usuarios usan la contraseña: password'
 UNION ALL SELECT ''
-UNION ALL SELECT '👤 ADMIN:'
+UNION ALL SELECT 'ADMIN:'
 UNION ALL SELECT '   Email: admin@nutrisystem.com'
 UNION ALL SELECT ''
-UNION ALL SELECT '👨‍⚕️ NUTRICIONISTAS:'
+UNION ALL SELECT 'NUTRICIONISTAS:'
 UNION ALL SELECT '   Email: carlos@nutricion.com'
 UNION ALL SELECT '   Email: maria@nutricion.com'
 UNION ALL SELECT ''
-UNION ALL SELECT '👥 PACIENTES:'
+UNION ALL SELECT 'PACIENTES:'
 UNION ALL SELECT '   Email: juan@example.com'
 UNION ALL SELECT '   Email: ana@example.com'
 UNION ALL SELECT ''
-UNION ALL SELECT '🧠 PSICÓLOGO:'
+UNION ALL SELECT 'PSICÓLOGO:'
 UNION ALL SELECT '   Email: roberto@psicologo.com'
 UNION ALL SELECT '========================================';
